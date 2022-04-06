@@ -2,39 +2,30 @@ import './App.css';
 import { useState, useEffect } from "react";
 const axios = require('axios')
 
-
-
-
-
 function Login() {
     const [firstname, setfirstname] = useState("")
     const [password, setpassword] = useState("");
+    const [users, setusers] = useState("");
+    const [status, setstatus] = useState(false);
 
-    function login(e){
-        const fetchPosts = async () => {
-            const res = await axios.get("http://localhost:9000/login")
-            console.log(res.data)
-            return res.data;
-        };
-        let users = fetchPosts();
-        users.forEach(function(user){
-            if(user.firstname === firstname && user.password === password){
-                console.log("login lol")
-            }
-        })
- 
-
+    async function makecall () {
+        return fetch("http://localhost:9000/login?firstname="+firstname+"&password="+password)
+        .then(res => console.log(res))
     }
 
-  return (
-        <form>
-            <label>firstname</label>
-            <input type="text" onChange={(e) => {setfirstname(e.target.value)}}/> <br></br>
-            <label>password</label>
-            <input type="text" onChange={(e) => {setpassword(e.target.value)}}/> <br></br>
-            <input type="button"  onClick={(e)=> {login(e)}}/>
-        </form>
-  );
+        return (
+            <>
+              <form>
+                  <label>firstname</label>
+                  <input type="text" onChange={(e) => {setfirstname(e.target.value)}}/> <br></br>
+                  <label>password</label>
+                  <input type="text" onChange={(e) => {setpassword(e.target.value)}}/> <br></br>
+                  <input type="button" value="submit" onClick={(e)=> {makecall()}}/>
+              </form>
+              </>
+        );
+
+
 }
 
 export default Login;

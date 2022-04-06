@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import './App.css';
 import { useState, useEffect } from "react";
 const axios = require('axios')
@@ -12,6 +13,7 @@ function Register() {
     const [email, setemail] = useState("");
     const [address, setaddress] = useState("");
     const [password, setpassword] = useState("");
+    const [uuid,setuuid] = useState(uuidv4());
 
     function insert(){
         axios.post("http://localhost:9000/register", {
@@ -21,11 +23,13 @@ function Register() {
           address: address,
           password: password,
           OrtIDFS: 1,
+          uuid: uuid
         });
         
     }
 
   return (
+      <>
         <form>
             <label>firstname</label>
             <input type="text" onChange={(e) => {setfirstname(e.target.value)}}/> <br></br>
@@ -39,6 +43,8 @@ function Register() {
             <input type="text" onChange={(e) => {setpassword(e.target.value)}}/> <br></br>
             <input type="submit" onClick={(e)=> {insert()}}></input>
         </form>
+        <p>{uuid}</p>
+        </>
   );
 }
 
