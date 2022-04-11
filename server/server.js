@@ -1,9 +1,8 @@
 var express = require('express')
 var cors = require('cors')
 var mysql = require('mysql');
-const cookie_parser = require('cookie-parser')
+const Cookies = require('js-cookie');
 let app=express()
-app.use(cookie_parser())
 app.use(cors());
 var bodyParser = require('body-parser')
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -14,7 +13,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "root",
+    password: "",
     database: "pinboard"
 });
 
@@ -36,35 +35,16 @@ app.post('/register', (req, res) => {
         console.log("1 record inserted");
     });
 })
-/*
 app.post('/login', (req, res) => {
-   const answer = con.query("SELECT * FROM user ", (err, results)=> {
-       if (err){
-           return res.sendStatus(599)
-       }
-       for (let i = 0; i < results.length; i++) {
-           if(req.body.firstname == results[i].firstname && req.body.password == results[i].password)
-           {
-            console.log(req.cookies)
-            res.cookie('pinboard',results[i].uuid, {maxAge: 90000})
-            return res.send('Cookie has been set')
-    
-           }
-        }
-   })
-   res.status(200)
-})
-*/
-app.get('/login', (req, res) => {
     const answer = con.query("SELECT * FROM user ", (err, results)=> {
         if (err){
             return res.sendStatus(599)
         }
         for (let i = 0; i < results.length; i++) {
-            if(req.query.firstname == results[i].firstname && req.query.password == results[i].password)
+            if(req.body.firstname == results[i].firstname && req.body.password == results[i].password)
             {
-                res.cookie('pinboard',results[i].UUID, {maxAge: 90000})
-                return res.send("cookie baked")
+                Cookies.set('Test', results[i].UUID, {expires: 1})
+                return res.send(results[i].UUID)
             }
          }
           
@@ -73,5 +53,16 @@ app.get('/login', (req, res) => {
     })
 
 });
+app.post('/cookies', (req,res) => {
+
+    const answer = con.query("SELECT * FROM `user` WHERE UUID = '"+req.body.UUID+"'", (err, results) => {
+        if (err){
+            return res.sendStatus(599)
+        }
+    })
+
+
+
+})
 
 app.listen(9000)
