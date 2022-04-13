@@ -8,10 +8,17 @@ const axios = require('axios')
 export default function Mainpage() {
 
   const [UUID, setUUID] = useState("")
-
+  const [state, setstate] = useState("status")
   async function checkcookies(){
-    setUUID(Cookies.get('user'))
-    await axios.post("http://localhost:9000/cookies", {UUID: UUID})
+    const user = Cookies.get('user')
+    console.log(user)
+    await axios.post("http://localhost:9000/cookies", {UUID: user})
+    .then(response => setstate(response.data))
+    
+    if (state != "status"){
+      console.log(state)
+    }
+
 
   }
 
@@ -20,22 +27,30 @@ export default function Mainpage() {
     checkcookies()
   }, []);
 
-  if(UUID == ""){
-    return <Navigate to='/login'  />
+  /*
+  if (state != "status"){
+    if (state == false){
+      return <p>login</p>
+    }
+    else if (state == true){
+      return (
+        <>
+            <h1>
+                Mainpage
+            </h1>
+            <h2>
+              This is a page
+            </h2>
+            <p>
+              {UUID}
+            </p>
+          </>
+      );
+      }
   }
   else {
-  return (
-    <>
-        <h1>
-            Mainpage
-        </h1>
-        <h2>
-          This is a page
-        </h2>
-        <p>
-          {UUID}
-        </p>
-      </>
-  );
-}
+    return( <p>Loading</p>)
+  }
+  */
+ return(<p>p</p>)
 }

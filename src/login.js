@@ -14,7 +14,7 @@ function Login() {
         password: password})
         .then((response) => setuserid(response.data))
         .catch((error) => console.log(error))
-        Cookies.set('user', userid, {expires:1})
+        .then(Cookies.set('user', userid, {expires:1, path:''}))
 
     }
 
