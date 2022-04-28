@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
+    password: "root",
     database: "pinboard"
 });
 
@@ -53,15 +53,16 @@ app.post('/login', (req, res) => {
     })
 
 });
-app.post('/cookies', (req,res) => {
-
-    const answer = con.query("SELECT * FROM `user` WHERE UUID = '"+req.body.UUID+"'", (err, results) => {
+app.post('/cookies', async (req,res) => {
+    let status
+    if (req.body.UUID != undefined){
+    const answer = await con.query("SELECT * FROM `user` WHERE UUID = '"+req.body.UUID+"'", (err, results) => {
         if (err){
             return res.sendStatus(599)
         }
         console.log(answer)
         return res.send(true)
-    })
+    
 })
 app.post('/boards', (req, res) => {
     const answer = con.query("SELECT * FROM user ", (err, results)=> {
@@ -81,5 +82,16 @@ app.post('/boards', (req, res) => {
     })
 
 });
+
+function checkUser(UUID1, UUID2){
+    if (UUID1 == UUID2){
+        console.log(true)
+        return true
+    }
+    else {
+        console.log(false)
+        return false
+    }
+}
 
 app.listen(9000)

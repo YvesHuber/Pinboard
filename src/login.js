@@ -14,7 +14,6 @@ function Login() {
         const testdata = await res.data;
         setuserid(testdata)
         Cookies.set('user', [testdata], {expires:1})
-        
 
 
     }
