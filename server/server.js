@@ -41,13 +41,13 @@ app.post('/login', (req, res) => {
             return res.sendStatus(599)
         }
         for (let i = 0; i < results.length; i++) {
-            if(req.body.firstname == results[i].firstname && req.body.password == results[i].password)
+            if(req.body.firstname === results[i].firstname && req.body.password === results[i].password)
             {
+                console.log(answer)
                 Cookies.set('Test', results[i].UUID, {expires: 1})
                 return res.send(results[i].UUID)
             }
          }
-          
          res.send('no cookie has been set')
          return
     })
@@ -59,10 +59,27 @@ app.post('/cookies', (req,res) => {
         if (err){
             return res.sendStatus(599)
         }
+        console.log(answer)
+        return res.send(true)
+    })
+})
+app.post('/boards', (req, res) => {
+    const answer = con.query("SELECT * FROM user ", (err, results)=> {
+        if (err){
+            return res.sendStatus(599)
+        }
+        for (let i = 0; i < results.length; i++) {
+            if(req.body.firstname === results[i].firstname && req.body.password === results[i].password)
+            {
+                console.log(answer)
+                Cookies.set('Test', results[i].UUID, {expires: 1})
+                return res.send(results[i].UUID)
+            }
+         }
+         res.send('no cookie has been set')
+         return
     })
 
-
-
-})
+});
 
 app.listen(9000)

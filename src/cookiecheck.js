@@ -1,13 +1,14 @@
 import './App.css';
 import { useState, useEffect } from "react";
+import Navigate from "react-dom";
 
 const Cookies = require('js-cookie')
 const axios = require('axios')
 
-export default function Mainpage() {
+export default function Cookie() {
 
   const [UUID, setUUID] = useState("")
-  const [valid, Validation] = useState(false)
+  const [valid, Validation] = useState(true)
 
   async function checkcookies(){
     if (Cookies.get('user') !== undefined && Cookies.get('user') !== ''){
@@ -16,6 +17,12 @@ export default function Mainpage() {
       if (result.data === true){
         Validation(result.data)
       }
+      else {
+          Validation(false)
+      }
+    }
+    else{
+        Validation(false)
     }
   }
 
@@ -27,21 +34,19 @@ export default function Mainpage() {
   if (valid === true){
   return (
     <>
-        <h1>
-            Mainpage
-        </h1>
-        <h2>
-          This is a page
-        </h2>
-        <p>
-          {UUID}
-        </p>
-      </>
+    <p>Cookie</p>
+    </>
   );
   }
-  else {
+  else if (valid === false) {
     return (
-      <p>Not Valid Cookie</p>
+    <>
+    <p>No Cookie</p>
+    </>
     )
+  }
+  else {
+    <>
+    </>
   }
 }

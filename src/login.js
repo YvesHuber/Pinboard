@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 const Cookies = require('js-cookie')
 const axios = require('axios')
 
@@ -9,12 +9,13 @@ function Login() {
     const [userid, setuserid] = useState("");
 
     async function makecall () {
-        const res = await axios.post("http://localhost:9000/login",
-        {firstname: firstname,
-        password: password})
-        .then((response) => setuserid(response.data))
-        .catch((error) => console.log(error))
-        Cookies.set('user', userid, {expires:1})
+        const res = await axios.post("http://localhost:9000/login", {firstname: firstname, password: password})
+        .catch((error) => console.log(error));
+        const testdata = await res.data;
+        setuserid(testdata)
+        Cookies.set('user', [testdata], {expires:1})
+        
+
 
     }
 
@@ -28,7 +29,7 @@ function Login() {
                   <input type="button" value="submit" onClick={(e)=> {makecall()}}/>
               </form>
               <p>{userid}</p>
-              </>
+            </>
         );
 
 

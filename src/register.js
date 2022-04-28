@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import './App.css';
 import { useState, useEffect } from "react";
 const axios = require('axios')
-
+const CryptoJS = require("crypto-js");
 
 
 
@@ -16,6 +16,12 @@ function Register() {
     const [uuid,setuuid] = useState(uuidv4());
 
     function insert(){
+        console.log(CryptoJS.SHA1(firstname).toString())
+        console.log(CryptoJS.SHA1(lastname).toString())
+        console.log(CryptoJS.SHA1(email).toString())
+        console.log(CryptoJS.SHA1(address).toString())
+        console.log(CryptoJS.SHA1(password).toString())
+        /*
         axios.post("http://localhost:9000/register", {
           firstname: firstname,
           lastname: lastname,
@@ -25,7 +31,7 @@ function Register() {
           OrtIDFS: 1,
           uuid: uuid
         });
-        
+        */
     }
 
   return (
@@ -41,7 +47,7 @@ function Register() {
             <input type="text" onChange={(e) => {setaddress(e.target.value)}}/> <br></br>
             <label>password</label>
             <input type="text" onChange={(e) => {setpassword(e.target.value)}}/> <br></br>
-            <input type="submit" onClick={(e)=> {insert()}}></input>
+            <input type="text" onClick={(e)=> {insert()}}></input>
         </form>
         <p>{uuid}</p>
         </>
