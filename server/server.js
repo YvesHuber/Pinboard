@@ -2,7 +2,7 @@ var express = require('express')
 var cors = require('cors')
 var mysql = require('mysql');
 const Cookies = require('js-cookie');
-let app=express()
+let app = express()
 app.use(cors());
 var bodyParser = require('body-parser')
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "root",
+    password: "",
     database: "pinboard"
 });
 
@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 });
 app.post('/register', (req, res) => {
     console.log(req.body)
-    var sql = "INSERT INTO user (firstname,lastname,email,address,password,OrtIDFS,UUID) VALUES ('" + req.body.firstname + "','" + req.body.lastname + "','" + req.body.email + "','" + req.body.address + "','" + req.body.password + "','" +req.body.OrtIDFS+"', '"+ req.body.uuid +"')";
+    var sql = "INSERT INTO user (firstname,lastname,email,address,password,OrtIDFS,UUID) VALUES ('" + req.body.firstname + "','" + req.body.lastname + "','" + req.body.email + "','" + req.body.address + "','" + req.body.password + "','" + req.body.OrtIDFS + "', '" + req.body.uuid + "')";
     console.log(sql)
     con.query(sql, function (err, result) {
         if (err) throw err;
@@ -36,62 +36,56 @@ app.post('/register', (req, res) => {
     });
 })
 app.post('/login', (req, res) => {
-    const answer = con.query("SELECT * FROM user ", (err, results)=> {
-        if (err){
+    const answer = con.query("SELECT * FROM user ", (err, results) => {
+        if (err) {
             return res.sendStatus(599)
         }
         for (let i = 0; i < results.length; i++) {
-            if(req.body.firstname === results[i].firstname && req.body.password === results[i].password)
-            {
+            if (req.body.firstname === results[i].firstname && req.body.password === results[i].password) {
                 console.log(answer)
-                Cookies.set('Test', results[i].UUID, {expires: 1})
+                Cookies.set('Test', results[i].UUID, {
+                    expires: 1
+                })
                 return res.send(results[i].UUID)
             }
-         }
-         res.send('no cookie has been set')
-         return
+        }
+        res.send('no cookie has been set')
+        return
     })
 
 });
-app.post('/cookies', async (req,res) => {
-    let status
-    if (req.body.UUID != undefined){
-    const answer = await con.query("SELECT * FROM `user` WHERE UUID = '"+req.body.UUID+"'", (err, results) => {
-        if (err){
-            return res.sendStatus(599)
-        }
-        console.log(answer)
-        return res.send(true)
-    
-})
+app.post('/cookies', async (req, res) => {
+    console.log(req.body.UUID)
+    if (req.body.UUID !== undefined) {
+        const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "'", (err, results) => {
+            if (err) {
+                return res.sendStatus(599)
+            }
+            return res.send(true)
+
+        })
+    }
+});
+
 app.post('/boards', (req, res) => {
-    const answer = con.query("SELECT * FROM user ", (err, results)=> {
-        if (err){
+    const answer = con.query("SELECT * FROM user ", (err, results) => {
+        if (err) {
             return res.sendStatus(599)
         }
         for (let i = 0; i < results.length; i++) {
-            if(req.body.firstname === results[i].firstname && req.body.password === results[i].password)
-            {
+            if (req.body.firstname === results[i].firstname && req.body.password === results[i].password) {
                 console.log(answer)
-                Cookies.set('Test', results[i].UUID, {expires: 1})
+                Cookies.set('Test', results[i].UUID, {
+                    expires: 1
+                })
                 return res.send(results[i].UUID)
             }
-         }
-         res.send('no cookie has been set')
-         return
+        }
+        res.send('no cookie has been set')
+        return
     })
-
 });
 
-function checkUser(UUID1, UUID2){
-    if (UUID1 == UUID2){
-        console.log(true)
-        return true
-    }
-    else {
-        console.log(false)
-        return false
-    }
-}
+
 
 app.listen(9000)

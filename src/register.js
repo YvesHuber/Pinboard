@@ -16,12 +16,11 @@ function Register() {
     const [uuid,setuuid] = useState(uuidv4());
 
     function insert(){
-        console.log(CryptoJS.SHA1(firstname).toString())
-        console.log(CryptoJS.SHA1(lastname).toString())
-        console.log(CryptoJS.SHA1(email).toString())
-        console.log(CryptoJS.SHA1(address).toString())
-        console.log(CryptoJS.SHA1(password).toString())
-        /*
+      setfirstname(CryptoJS.SHA1(firstname).toString())
+      setlastname(CryptoJS.SHA1(lastname).toString())
+      setemail(CryptoJS.SHA1(email).toString())
+      setaddress(CryptoJS.SHA1(address).toString())
+      setpassword(CryptoJS.SHA1(password).toString())
         axios.post("http://localhost:9000/register", {
           firstname: firstname,
           lastname: lastname,
@@ -31,7 +30,7 @@ function Register() {
           OrtIDFS: 1,
           uuid: uuid
         });
-        */
+        
     }
 
   return (
