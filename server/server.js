@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
+    password: "root",
     database: "pinboard"
 });
 
@@ -55,35 +55,28 @@ app.post('/login', (req, res) => {
 
 });
 app.post('/cookies', async (req, res) => {
-    console.log(req.body.UUID)
+    console.log(req.body)
     if (req.body.UUID !== undefined) {
         const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "'", (err, results) => {
             if (err) {
                 return res.sendStatus(599)
             }
             return res.send(true)
-
         })
     }
+    else {
+        return res.send(false)
+    }
 });
-
-app.post('/boards', (req, res) => {
-    const answer = con.query("SELECT * FROM user ", (err, results) => {
-        if (err) {
-            return res.sendStatus(599)
-        }
-        for (let i = 0; i < results.length; i++) {
-            if (req.body.firstname === results[i].firstname && req.body.password === results[i].password) {
-                console.log(answer)
-                Cookies.set('Test', results[i].UUID, {
-                    expires: 1
-                })
-                return res.send(results[i].UUID)
-            }
-        }
-        res.send('no cookie has been set')
-        return
-    })
+app.post('/createboard', (req, res) => {
+    let date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    console.log(req.body)
+    var sql = "INSERT INTO pinboard (Name, Createdon) VALUES ('"+req.body.Name+"','"+date+"')";
+    console.log(sql)
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("1 record inserted");
+    });
 });
 
 

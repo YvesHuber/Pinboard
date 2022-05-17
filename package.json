@@ -23,6 +23,8 @@
     "react-scripts": "5.0.0",
     "universal-cookie": "^4.0.4",
     "universal-cookie-express": "^4.0.3",
+    "use-deep-compare-effect": "^1.8.1",
+    "use-state-if-mounted": "^1.0.7",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4"
   },

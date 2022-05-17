@@ -21,6 +21,9 @@ function Register() {
       setemail(CryptoJS.SHA1(email).toString())
       setaddress(CryptoJS.SHA1(address).toString())
       setpassword(CryptoJS.SHA1(password).toString())
+      console.log(firstname)
+      console.log(lastname)
+      console.log(uuid)
         axios.post("http://localhost:9000/register", {
           firstname: firstname,
           lastname: lastname,
@@ -46,7 +49,7 @@ function Register() {
             <input type="text" onChange={(e) => {setaddress(e.target.value)}}/> <br></br>
             <label>password</label>
             <input type="text" onChange={(e) => {setpassword(e.target.value)}}/> <br></br>
-            <input type="text" onClick={(e)=> {insert()}}></input>
+            <input type="submit" onClick={(e)=> {insert()}}></input>
         </form>
         <p>{uuid}</p>
         </>
