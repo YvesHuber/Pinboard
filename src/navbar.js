@@ -9,7 +9,7 @@ export default function Navigation() {
         <>
         <Navbar bg="light" expand="lg">
             <Container>
-                <Navbar.Brand href="http://localhost:3000">Pinbaord</Navbar.Brand>
+                <Navbar.Brand href="http://localhost:3000">Pinboard</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="me-auto">

@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "root",
+    password: "",
     database: "pinboard"
 });
 
@@ -55,7 +55,6 @@ app.post('/login', (req, res) => {
 
 });
 app.post('/cookies', async (req, res) => {
-    console.log(req.body)
     if (req.body.UUID !== undefined) {
         const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "'", (err, results) => {
             if (err) {
@@ -63,21 +62,76 @@ app.post('/cookies', async (req, res) => {
             }
             return res.send(true)
         })
-    }
-    else {
+    } else {
         return res.send(false)
     }
 });
-app.post('/createboard', (req, res) => {
+
+app.post('/createboards', async (req, res) => {
     let date = new Date().toISOString().slice(0, 19).replace('T', ' ');
     console.log(req.body)
-    var sql = "INSERT INTO pinboard (Name, Createdon) VALUES ('"+req.body.Name+"','"+date+"')";
-    console.log(sql)
-    con.query(sql, function (err, result) {
+    var pinboard = "INSERT INTO pinboard (Name, Createdon) VALUES ('" + req.body.Name + "','" + date + "')";
+    con.query(pinboard,async function (err, result) {
         if (err) throw err;
-        console.log("1 record inserted");
+        const answer = await con.query("SELECT * FROM `pinboard` WHERE Name = '" + req.body.Name + "'&& Createdon = '" + date + "';", (err, pinboardresults) => {
+            if (err) {
+                return res.sendStatus(599)
+            }
+            console.log(pinboardresults)
+            let pinboardid = pinboardresults[0].ID
+            const answer = con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "';", (err, userresults) => {
+                if (err) {
+                    return res.sendStatus(599)
+                }
+                console.log(userresults)
+                let userid = userresults[0].ID
+                var pinboarduser = "INSERT INTO pinboarduser (UserIDFS, PinboardIDFS, role) VALUES ('" + userid + "','" + pinboardid + "', 1)";
+                console.log(pinboarduser)
+                con.query(pinboarduser, function (err, result) {
+                    if (err) throw err;
+                    console.log("1 record inserted")
+                })
+            })
+        })
     });
 });
+app.get('/getboards', async (req, res) => {
+    console.log(res.data.UUID)
+    /*if (req.body.UUID !== undefined) {
+        const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "'", (err, results) => {
+            if (err) {
+                return res.sendStatus(599)
+            }
+            
+            const answer = con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "'", (err, results) => {
+            if (err) {
+                return res.sendStatus(599)
+                }
+
+            })
+            
+            })
+            
+    } else {
+        return res.send(false)
+    */
+})
+app.get('/getid', async (req,res) => {
+    if (req.query.UUID !== undefined) {
+        const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.query.UUID + "'", (err, results) => {
+            if (err) {
+                return res.sendStatus(599)
+                }
+                console.log(results)
+
+            return res.send(results)
+            })
+    }
+    else {
+    return res.send("Not defined UUID")
+    }
+    
+})
 
 
 
