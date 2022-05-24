@@ -15,7 +15,6 @@ export default function Navigation() {
                 <Nav className="me-auto">
                     <Nav.Link href="Login">Login</Nav.Link>
                     <Nav.Link href="Register">Register</Nav.Link>
-                    <Nav.Link href="Board">Boards</Nav.Link>
                 </Nav>
                 </Navbar.Collapse>
             </Container>

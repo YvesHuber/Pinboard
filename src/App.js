@@ -12,14 +12,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 function App() {
 
   return (
-  <div className="App">
+  <div>
     <Navigation/>
     <BrowserRouter>
       <Routes>
-        <Route path="" element={<Mainpage/>}/>
+        <Route path="" element={<Board/>}/>
         <Route path="/register" element={<Register/>}/>
         <Route path="/login" element={<Login/>}/>
-        <Route path="/board" element={<Board/>}/>
       </Routes>
     </BrowserRouter>
   </div>

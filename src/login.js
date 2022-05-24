@@ -1,4 +1,4 @@
-import './App.css';
+import './Style.css';
 import { useState } from "react";
 const Cookies = require('js-cookie')
 const axios = require('axios')
@@ -20,6 +20,8 @@ function Login() {
 
         return (
             <>
+            <div className="Login">
+            <h2>Login</h2>
               <form>
                   <label>firstname</label>
                   <input type="text" onChange={(e) => {setfirstname(e.target.value)}}/> <br></br>
@@ -28,6 +30,7 @@ function Login() {
                   <input type="button" value="submit" onClick={(e)=> {makecall()}}/>
               </form>
               <p>{userid}</p>
+              </div>
             </>
         );
 

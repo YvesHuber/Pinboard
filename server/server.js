@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
+    password: "root",
     database: "pinboard"
 });
 
@@ -68,69 +68,54 @@ app.post('/cookies', async (req, res) => {
 });
 
 app.post('/createboards', async (req, res) => {
-    let date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    let date = new Date().toISOString().slice(0, 10).replace('T', ' ');
     console.log(req.body)
-    var pinboard = "INSERT INTO pinboard (Name, Createdon) VALUES ('" + req.body.Name + "','" + date + "')";
-    con.query(pinboard,async function (err, result) {
-        if (err) throw err;
-        const answer = await con.query("SELECT * FROM `pinboard` WHERE Name = '" + req.body.Name + "'&& Createdon = '" + date + "';", (err, pinboardresults) => {
-            if (err) {
-                return res.sendStatus(599)
+    const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "'", (err, results) => {
+        if (err) {
+            return res.sendStatus(599)
+        }
+        let userid = results[0].ID
+        let sql = "INSERT INTO pinboard (Name, Createdon,UUID) VALUES ('" + req.body.Name + "','" + date + "', '"+req.body.BoardUUID+"');" 
+        console.log(sql)
+        const ans = con.query(sql, async function (err, result) {
+            if (err) { 
+            throw err;
             }
-            console.log(pinboardresults)
-            let pinboardid = pinboardresults[0].ID
-            const answer = con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "';", (err, userresults) => {
-                if (err) {
-                    return res.sendStatus(599)
-                }
-                console.log(userresults)
-                let userid = userresults[0].ID
-                var pinboarduser = "INSERT INTO pinboarduser (UserIDFS, PinboardIDFS, role) VALUES ('" + userid + "','" + pinboardid + "', 1)";
-                console.log(pinboarduser)
-                con.query(pinboarduser, function (err, result) {
-                    if (err) throw err;
-                    console.log("1 record inserted")
-                })
+            console.log(result)
+            let usersql = "INSERT INTO pinboarduser (UserIDFS, PinboardIDFS, role) VALUES ('" + userid + "','" + result.insertId + "','1')"; 
+            console.log(usersql)
+            const answer = con.query (usersql, async function (err, result) {
+                if (err) { 
+                    throw err;
+                    } 
             })
+            return res.send(true)
         })
-    });
-});
-app.get('/getboards', async (req, res) => {
-    console.log(res.data.UUID)
-    /*if (req.body.UUID !== undefined) {
-        const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "'", (err, results) => {
-            if (err) {
-                return res.sendStatus(599)
-            }
-            
-            const answer = con.query("SELECT * FROM `user` WHERE UUID = '" + req.body.UUID + "'", (err, results) => {
-            if (err) {
-                return res.sendStatus(599)
-                }
-
-            })
-            
-            })
-            
-    } else {
-        return res.send(false)
-    */
+    })
 })
-app.get('/getid', async (req,res) => {
+app.get('/getboards', async (req, res) => {
+    let result = [];
     if (req.query.UUID !== undefined) {
         const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.query.UUID + "'", (err, results) => {
             if (err) {
-                return res.sendStatus(599)
+                console.log(err)
+            }
+            let sql = "SELECT pinboard.ID, pinboard.Name, pinboard.Createdon, pinboard.UUID FROM pinboard INNER JOIN pinboarduser ON pinboard.ID = pinboarduser.PinboardIDFS INNER JOIN user ON user.ID = pinboarduser.UserIDFS WHERE user.ID = '"+ results[0].ID +"';"
+            const boards = con.query(sql, (err, boardresult) => {
+                if (err) {
+                    console.log(err)
                 }
-                console.log(results)
+                for (let i = 0; i < boardresult.length; i++){
+                    let object = {Name: boardresult[i].Name, Createddate: boardresult[i].Createdon, UUID: boardresult[i].UUID}
+                    result.push(object)
+                }
+                res.send(result)
+            })   
+        })   
+    } else {
+       res.send("no UUID")
+    }
 
-            return res.send(results)
-            })
-    }
-    else {
-    return res.send("Not defined UUID")
-    }
-    
 })
 
 
