@@ -1,3 +1,5 @@
+import '../style/App.css';
+import '../style/Style.css';
 const axios = require('axios')
 const Cookies = require('js-cookie')
 

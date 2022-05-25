@@ -1,4 +1,5 @@
-import './Style.css';
+import '../style/App.css';
+import '../style/Style.css';
 import { useState } from "react";
 const Cookies = require('js-cookie')
 const axios = require('axios')

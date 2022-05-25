@@ -1,24 +1,27 @@
 import logo from './logo.svg';
-import './App.css';
-import Register from './register'
-import Login from './login'
-import Mainpage from './mainpage'
-import Navigation from './navbar'
-import Board from './board'
+import './style/App.css';
+import Register from './components/register'
+import Login from './components/login'
+import Mainpage from './components/mainpage'
+import Navigation from './components/navbar'
+import Crypto from './components/crypto'
+import Board from './components/board'
+import Boarddisplay from './components/boarddisplay'
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 
 function App() {
-
   return (
   <div>
     <Navigation/>
     <BrowserRouter>
       <Routes>
-        <Route path="" element={<Board/>}/>
-        <Route path="/register" element={<Register/>}/>
-        <Route path="/login" element={<Login/>}/>
+        <Route exact path="" element={<Board/>}/>
+        <Route exact path="/register" element={<Register/>}/>
+        <Route exact path="/dev" element={<Crypto/>}/>
+        <Route exact path="/login" element={<Login/>}/>
+        <Route exact path="/board/:name/:uuid" element={<Boarddisplay/>}/>
       </Routes>
     </BrowserRouter>
   </div>

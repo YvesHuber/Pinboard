@@ -1,4 +1,5 @@
-import './App.css';
+import '../style/App.css';
+import '../style/Style.css';
 import { useState, useEffect } from "react";
 import Redirect from './redirect';
 

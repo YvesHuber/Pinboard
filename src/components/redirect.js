@@ -1,5 +1,5 @@
-import './App.css';
-import { useState, useEffect } from "react";
+import '../style/App.css';
+import '../style/Style.css';import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 const axios = require('axios')
 const Cookies = require('js-cookie')

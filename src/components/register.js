@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import './App.css';
+import '../style/App.css';
+import '../style/Style.css';
+import sha512 from 'crypto-js/sha512';
 import { useState, useEffect } from "react";
 const axios = require('axios')
 const CryptoJS = require("crypto-js");
@@ -16,11 +18,11 @@ function Register() {
     const [uuid,setuuid] = useState(uuidv4());
 
     function insert(){
-      setfirstname(CryptoJS.SHA1(firstname).toString())
-      setlastname(CryptoJS.SHA1(lastname).toString())
-      setemail(CryptoJS.SHA1(email).toString())
-      setaddress(CryptoJS.SHA1(address).toString())
-      setpassword(CryptoJS.SHA1(password).toString())
+      setfirstname(CryptoJS.sha512(firstname).toString())
+      setlastname(CryptoJS.sha512(lastname).toString())
+      setemail(CryptoJS.sha512(email).toString())
+      setaddress(CryptoJS.sha512(address).toString())
+      setpassword(CryptoJS.sha512(password).toString())
       console.log(firstname)
       console.log(lastname)
       console.log(uuid)
