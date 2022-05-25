@@ -1,8 +1,13 @@
 import '../style/App.css';
 import '../style/Style.css';
 import { useState } from "react";
+
+import sha512 from 'crypto-js/sha512';
+import {Button, Offcanvas, Container, Row, Col} from "react-bootstrap"
 const Cookies = require('js-cookie')
 const axios = require('axios')
+const CryptoJS = require("crypto-js");
+
 
 function Login() {
     const [firstname, setfirstname] = useState("")
@@ -10,6 +15,10 @@ function Login() {
     const [userid, setuserid] = useState("");
 
     async function makecall () {
+        setfirstname(sha512(firstname).toString())
+        setpassword(sha512(password).toString())
+
+
         const res = await axios.post("http://localhost:9000/login", {firstname: firstname, password: password})
         .catch((error) => console.log(error));
         const testdata = await res.data;

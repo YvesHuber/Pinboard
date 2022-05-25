@@ -18,11 +18,11 @@ function Register() {
     const [uuid,setuuid] = useState(uuidv4());
 
     function insert(){
-      setfirstname(CryptoJS.sha512(firstname).toString())
-      setlastname(CryptoJS.sha512(lastname).toString())
-      setemail(CryptoJS.sha512(email).toString())
-      setaddress(CryptoJS.sha512(address).toString())
-      setpassword(CryptoJS.sha512(password).toString())
+      setfirstname(sha512(firstname).toString())
+      setlastname(sha512(lastname).toString())
+      setemail(sha512(email).toString())
+      setaddress(sha512(address).toString())
+      setpassword(sha512(password).toString())
       console.log(firstname)
       console.log(lastname)
       console.log(uuid)

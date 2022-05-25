@@ -12,8 +12,8 @@ export default function Boarddisplay() {
 
 
   async function convert(){
-      console.log(sha512(description))
-    setDescription(sha512(description).toString)
+      console.log(sha512(description).toString())
+    setDescription(sha512(description).toString())
 
   }
 
