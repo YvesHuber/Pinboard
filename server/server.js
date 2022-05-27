@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 });
 app.post('/register', (req, res) => {
     console.log(req.body)
-    var sql = "INSERT INTO user (firstname,lastname,email,address,password,OrtIDFS,UUID) VALUES ('" + req.body.firstname + "','" + req.body.lastname + "','" + req.body.email + "','" + req.body.address + "','" + req.body.password + "','" + req.body.OrtIDFS + "', '" + req.body.uuid + "')";
+    var sql = "INSERT INTO user (firstname,lastname,email,address,password,PLZ,UUID) VALUES ('" + req.body.firstname + "','" + req.body.lastname + "','" + req.body.email + "','" + req.body.address + "','" + req.body.password + "','" + req.body.OrtIDFS + "', '" + req.body.uuid + "')";
     console.log(sql)
     con.query(sql, function (err, result) {
         if (err) throw err;
@@ -36,21 +36,21 @@ app.post('/register', (req, res) => {
     });
 })
 app.post('/login', (req, res) => {
-    const answer = con.query("SELECT * FROM user ", (err, results) => {
+    const answer = con.query("SELECT * FROM user Where firstname ='"+req.body.firstname+"' && password='"+req.body.password+"';", (err, results) => {
         if (err) {
             return res.sendStatus(599)
         }
-        for (let i = 0; i < results.length; i++) {
-            if (req.body.firstname === results[i].firstname && req.body.password === results[i].password) {
-                console.log(answer)
-                Cookies.set('Test', results[i].UUID, {
-                    expires: 1
-                })
-                return res.send(results[i].UUID)
-            }
+        try {
+        if (results[0].UUID !== undefined){
+            console.log("Success at Login with "+ req.body.firstname + " and " + req.body.password)
+            console.log(results)
+            return res.send(results[0].UUID)
         }
-        res.send('no cookie has been set')
-        return
+        }
+        catch{
+            console.log("no Login Succes with" + req.body.firstname + " and " + req.body.password )
+            return res.send("ERR")
+        }
     })
 
 });
@@ -66,7 +66,6 @@ app.post('/cookies', async (req, res) => {
         return res.send(false)
     }
 });
-
 app.post('/createboards', async (req, res) => {
     let date = new Date().toISOString().slice(0, 10).replace('T', ' ');
     console.log(req.body)
@@ -121,8 +120,6 @@ app.get('/getboards', async (req, res) => {
     }
 
 })
-
-
 app.get('/getnotes', async (req, res) => {
     let result = [];
     console.log(req.query.UUID)
@@ -177,7 +174,21 @@ app.post('/createnote', async (req, res) => {
     })
 
 })
+app.get('/getuser', async (req, res) => {
+    console.log(req.query.UUID)
+    if (req.query.UUID !== undefined) {
+        const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.query.UUID + "'", (err, results) => {
+            if (err) {
+                console.log(err)
+            }
+            console.log(results)
+            return res.send(results)
+        })
+    } else {
+        res.send("no UUID")
+    }
 
+})
 
 
 app.listen(9000)

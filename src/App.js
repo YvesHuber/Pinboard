@@ -6,6 +6,7 @@ import Mainpage from './components/mainpage'
 import Navigation from './components/navbar'
 import Crypto from './components/crypto'
 import Board from './components/board'
+import User from './components/user'
 import Boarddisplay from './components/boarddisplay'
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -22,6 +23,7 @@ function App() {
         <Route exact path="/dev" element={<Crypto/>}/>
         <Route exact path="/login" element={<Login/>}/>
         <Route exact path="/board/:name/:uuid" element={<Boarddisplay/>}/>
+        <Route exact path="/user" element={<User/>}/>
       </Routes>
     </BrowserRouter>
   </div>

@@ -1,8 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import '../style/App.css';
-import '../style/Style.css';
+import '../style/Register.css';
 import sha512 from 'crypto-js/sha512';
 import { useState, useEffect } from "react";
+import {Button, Offcanvas, Container, Row, Col, Card, Form} from "react-bootstrap"
+
 const axios = require('axios')
 const CryptoJS = require("crypto-js");
 
@@ -14,18 +16,12 @@ function Register() {
     const [lastname, setlastname] = useState("");
     const [email, setemail] = useState("");
     const [address, setaddress] = useState("");
+    const [PLZ, setPLZ] = useState("");
     const [password, setpassword] = useState("");
     const [uuid,setuuid] = useState(uuidv4());
 
     function insert(){
-      setfirstname(sha512(firstname).toString())
-      setlastname(sha512(lastname).toString())
-      setemail(sha512(email).toString())
-      setaddress(sha512(address).toString())
       setpassword(sha512(password).toString())
-      console.log(firstname)
-      console.log(lastname)
-      console.log(uuid)
         axios.post("http://localhost:9000/register", {
           firstname: firstname,
           lastname: lastname,
@@ -40,20 +36,49 @@ function Register() {
 
   return (
       <>
+      <div className="Register">
+      <Container>
+        <Row>
+          <h2 >Register</h2>
+        </Row>
+  
         <form>
-            <label>firstname</label>
-            <input type="text" onChange={(e) => {setfirstname(e.target.value)}}/> <br></br>
-            <label>lastname</label>
-            <input type="text" onChange={(e) => {setlastname(e.target.value)}}/> <br></br>
-            <label>email</label>
-            <input type="text" onChange={(e) => {setemail(e.target.value)}}/> <br></br>
-            <label>address</label>
-            <input type="text" onChange={(e) => {setaddress(e.target.value)}}/> <br></br>
-            <label>password</label>
-            <input type="text" onChange={(e) => {setpassword(e.target.value)}}/> <br></br>
+          <Row>
+            <Col>
+            <input placeholder="Firstname" type="text" onChange={(e) => {setfirstname(e.target.value)}}/> 
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+            <input placeholder="Lastname" type="text" onChange={(e) => {setlastname(e.target.value)}}/>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+            <input placeholder="Email" type="text" onChange={(e) => {setemail(e.target.value)}}/> 
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+            <input placeholder="Password" type="password" onChange={(e) => {setpassword(e.target.value)}}/> 
+            </Col>
+          </Row>          
+          <Row>
+            <Col>
+            <input placeholder="Address" type="text" onChange={(e) => {setaddress(e.target.value)}}/> 
+            </Col>
+            <Col>
+            <input placeholder="PLZ" type="text" onChange={(e) => {setPLZ(e.target.value)}}/> 
+            </Col>
+          </Row>
+          <Row>
+            <Col>
             <input type="submit" onClick={(e)=> {insert()}}></input>
+            </Col>
+          </Row>
         </form>
-        <p>{uuid}</p>
+        </Container>
+        </div>
         </>
   );
 }

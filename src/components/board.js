@@ -45,13 +45,18 @@ export default function Board() {
 
 
   useEffect(() => {
+    if (UUID !== undefined){
     getBoards()
+    }
 
   }, []);
 
   if (isLoading) {
     return (
+      <>
+      <Redirect link="../login" />
       <div className="App">Loading...</div>
+      </>
     )
   }
   return (
@@ -61,7 +66,7 @@ export default function Board() {
         <Container>
           <Row>
         <Redirect link="../login" />
-        <h1>Boards</h1>
+        <h1>Hallo Boards</h1>
         <h2>Create new Board</h2>
         <Button variant="primary" onClick={handleShow}>
           Create Board
