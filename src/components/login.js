@@ -20,8 +20,10 @@ function Login() {
             .catch((error) => console.log(error));
         const testdata = await res.data;
         if(testdata !== "ERR"){
+        console.log(testdata)
         setuserid(testdata)
         Cookies.set('user', [testdata], { expires: 1 })
+        window.location.replace("http://localhost:3000");
         }
     }
 

@@ -31,7 +31,11 @@ function Register() {
           OrtIDFS: 1,
           uuid: uuid
         });
+        axios.post("http://localhost:9000/sendmail", {
+          mail: email
+        });
         
+      
     }
 
   return (

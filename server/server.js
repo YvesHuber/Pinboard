@@ -3,6 +3,9 @@ var cors = require('cors')
 var mysql = require('mysql');
 const Cookies = require('js-cookie');
 let app = express()
+var handlebars = require('handlebars');
+var fs = require('fs');
+var nodemailer = require('nodemailer');
 app.use(cors());
 var bodyParser = require('body-parser')
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -13,7 +16,7 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
+    password: "root",
     database: "pinboard"
 });
 
@@ -33,6 +36,15 @@ app.post('/register', (req, res) => {
     con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("1 record inserted");
+    });
+})
+app.post('/updatepassword', async (req, res) => {
+    console.log(req.body)
+    var sql = "Update user Set Password='"+req.body.Password+"' Where UUID ='"+req.body.UUID+"'";
+    console.log(sql)
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("1 record Updated");
     });
 })
 app.post('/login', (req, res) => {
@@ -189,6 +201,34 @@ app.get('/getuser', async (req, res) => {
     }
 
 })
+app.post('/sendmail', async (req, res) => {
+    console.log(req.body)
+    let html = fs.readFileSync("./mail.html", "utf-8");
+    let template = handlebars.compile(html);
 
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'develop.yves.huber@gmail.com',
+          pass: 'Yvesyves'
+        }
+      });
+      var mailOptions = {
+        from: 'develop.yves.huber@gmail.com',
+        to: 'yves.huber05@gmail.com',
+        subject: 'Sending Email using Node.js',
+        text: template
+      };
+      
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
+
+})
 
 app.listen(9000)

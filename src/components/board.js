@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import Redirect from './redirect';
 import { v4 as uuidv4 } from 'uuid';
-import {Button, Offcanvas, Container, Row, Col} from "react-bootstrap"
+import { Button, Offcanvas, Container, Row, Col, Card } from "react-bootstrap"
 const Cookies = require('js-cookie')
 
 const axios = require('axios')
@@ -17,7 +17,7 @@ export default function Board() {
   const [Name, setName] = useState()
   const [Boards, setBoards] = useState([])
   const [isLoading, setLoading] = useState(true);
-  const [uuid,setuuid] = useState(uuidv4());
+  const [uuid, setuuid] = useState(uuidv4());
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const UUID = Cookies.get('user')
@@ -30,8 +30,8 @@ export default function Board() {
         UUID: UUID
       })
       .catch((error) => console.log(error));
-      setLoading(true)
-      getBoards()
+    setLoading(true)
+    getBoards()
 
   }
   async function getBoards() {
@@ -40,13 +40,13 @@ export default function Board() {
     setBoards(result)
     console.log(Boards)
     setLoading(false)
-  
+
   }
 
 
   useEffect(() => {
-    if (UUID !== undefined){
-    getBoards()
+    if (UUID !== undefined) {
+      getBoards()
     }
 
   }, []);
@@ -54,8 +54,8 @@ export default function Board() {
   if (isLoading) {
     return (
       <>
-      <Redirect link="../login" />
-      <div className="App">Loading...</div>
+        <Redirect link="../login" />
+        <div className="App">Loading...</div>
       </>
     )
   }
@@ -65,40 +65,44 @@ export default function Board() {
       <div className="boards">
         <Container>
           <Row>
-        <Redirect link="../login" />
-        <h1>Hallo Boards</h1>
-        <h2>Create new Board</h2>
-        <Button variant="primary" onClick={handleShow}>
-          Create Board
-        </Button>
-        </Row>
-        <Row>
-        <Offcanvas show={show} onHide={handleClose}>
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Create New Board</Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            <form>
-              <input placeholder="Boardname" type="text" onChange={(e) => { setName(e.target.value) }} /> <br></br>
-              <input type="button" value="submit" onClick={(e) => { createBoard() }} />
-            </form>
-          </Offcanvas.Body>
-        </Offcanvas>
-        </Row>
-        <Row>
-        {Boards.map((board, index) => (
-          <>
-          <Col>
-            <Link to={`/board/${board.Name}/${board.UUID}`}>{board.Name}</Link>
-          </Col>
-          </>
-        ))}
-        </Row>
-
+            <Redirect link="../login" />
+            <h1>Hallo Boards</h1>
+            <h2>Create new Board</h2>
+            <Button variant="primary" onClick={handleShow}>
+              Create Board
+            </Button>
+          </Row>
+          <Row>
+            <Offcanvas show={show} onHide={handleClose}>
+              <Offcanvas.Header closeButton>
+                <Offcanvas.Title>Create New Board</Offcanvas.Title>
+              </Offcanvas.Header>
+              <Offcanvas.Body>
+                <form>
+                  <input placeholder="Boardname" type="text" onChange={(e) => { setName(e.target.value) }} /> <br></br>
+                  <input type="button" value="submit" onClick={(e) => { createBoard() }} />
+                </form>
+              </Offcanvas.Body>
+            </Offcanvas>
+          </Row>
+          <Row>
+            {Boards.map((board, index) => (
+              <>
+                <Link to={`/board/${board.Name}/${board.UUID}`}>
+                  <Card style={{ width: '18rem' }}>
+                    <Card.Body>
+                      <Card.Title>{board.Name}</Card.Title>
+                      <Card.Text>
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </>
+            ))}
+          </Row>
         </Container>
       </div>
     </>
   )
-  //     <Boarddisplay UUID={UUID} />
 
 }
