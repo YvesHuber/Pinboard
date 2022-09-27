@@ -149,13 +149,13 @@ export default function Boarddisplay() {
       <Container>
         <Redirect link="../login" />
         <Row>
-          <h1>{name}</h1>
+          <h1 style={{marginTop:"10%"}}>{name}</h1>
         </Row>
         <Row>
         {notes.map((note, index) => (
           <>
-          <Col>
-            <Card sx={{ maxWidth: 345 }}>
+          <Col fluid="md" style={{margin:"10px"}}>
+            <Card variant="outlined" sx={{ maxWidth: 254 }}>
               <CardContent>
                 <Typography gutterBottom variant="h5" component="div">
                   {note.title}

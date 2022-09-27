@@ -131,19 +131,13 @@ export default function Board() {
       <div className="boards">
         <Container>
           <Row>
-            <Col>
+            <Col style={{margin:"10%"}}>
               <Redirect link="../login" />
-              <h1>Hallo Boards</h1>
+              <h1  >Hallo Boards</h1>
               <h2>Create new Board</h2>
             </Col>
           </Row>
-          <Row>
-            <Col>
-              <Button variant="contained" style={{margin:"10px"}} onClick={handleShow}>
-                Create Board
-              </Button>
-            </Col>
-          </Row>
+
           <Row>
             <Offcanvas show={show} onHide={handleClose}>
               <Offcanvas.Header closeButton>
@@ -159,20 +153,29 @@ export default function Board() {
           </Row>
           <Row>
             {Boards.map((board, index) => (
-              <Card style={{margin:"10px"}} sx={{ maxWidth: 345 }}>
+              <Col  fluid="md"  style={{margin:"10px"}}>
+              <Card variant="outlined" style={{margin:"10px"}} sx={{ maxWidth: 254 }}>
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
-                    <Link to={`/board/${board.Name}/${board.UUID}`}>
+                    <Link style={{color:"black", textDecoration:"none"}} to={`/board/${board.Name}/${board.UUID}`}>
                       {board.Name}
                     </Link>
                   </Typography>
                 </CardContent>
                 <CardActions>
-                  <Button variant="contained" onClick={(e) => (handleShowDelete(board))}>löschen</Button>
-                  <Button variant="contained" onClick={(e) => (handleShowUpdate(board))}>editieren</Button>
+                  <Button variant="contained" color="error" onClick={(e) => (handleShowDelete(board))}>löschen</Button>
+                  <Button variant="contained" color="success" onClick={(e) => (handleShowUpdate(board))}>editieren</Button>
                 </CardActions>
               </Card>
+              </Col>
             ))}
+          </Row>
+          <Row>
+            <Col>
+              <Button variant="contained" style={{margin:"10px"}} onClick={handleShow}>
+                Create Board
+              </Button>
+            </Col>
           </Row>
           <Modal
             open={showUpdate}
