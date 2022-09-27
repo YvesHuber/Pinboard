@@ -3,11 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import Paper from '@mui/material/Paper';
 
 
 ReactDOM.render(
   <React.StrictMode>
+    <Paper elevation={3}>
+      <div style = {{height:"100vh"}}>
     <App />
+    </div>
+    </Paper>
   </React.StrictMode>,
   document.getElementById('root')
 );

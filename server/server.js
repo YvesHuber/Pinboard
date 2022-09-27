@@ -104,23 +104,93 @@ app.post('/createboards', async (req, res) => {
         })
     })
 })
+app.delete('/deletenote', async (req, res) => {
+    console.log('Got body:', req.body);
+    let note = req.body
+    const f = await con.query("DELETE FROM `pinboardnote` WHERE `NoteIDFS` = "+note.id, (err, results) => {
+        if (err) {
+            console.log(err)
+        }
+        console.log(results)
+    })
+
+    const answer = await con.query("DELETE FROM `note` WHERE `note`.`ID` = "+note.id, (err, results) => {
+        if (err) {
+            console.log(err)
+        }
+        console.log(results)
+    })
+    
+})
+
+app.put('/updatenote', async (req, res) => {
+    console.log('Got body:', req.body);
+    let note = req.body.data
+
+    const answer = await con.query("UPDATE note SET title = '"+note.title+"', description= '"+note.description+"'WHERE ID ="+note.id, (err, results) => {
+        if (err) {
+            console.log(err)
+        }
+        console.log(results)
+    })
+    
+    
+})
+app.delete('/deleteboard', async (req, res) => {
+    console.log('Got body:', req.body);
+    let board = req.body
+    const f = await con.query("DELETE FROM `pinboardnote` WHERE `PinboardIDFS` = "+board.id, (err, results) => {
+        if (err) {
+            console.log(err)
+        }
+    })
+    const u = await con.query("DELETE FROM `pinboarduser` WHERE `PinboardIDFS` = "+board.id, (err, results) => {
+        if (err) {
+            console.log(err)
+        }
+    })
+
+    const answer = await con.query("DELETE FROM `pinboard` WHERE `ID` = "+board.id, (err, results) => {
+        if (err) {
+            console.log(err)
+        }
+    })
+    
+})
+
+app.put('/updateboard', async (req, res) => {
+    console.log('Got body:', req.body);
+    let board = req.body.data
+
+    const answer = await con.query("UPDATE pinboard SET name = '"+board.title+"' WHERE ID ="+board.id, (err, results) => {
+        if (err) {
+            console.log(err)
+        }
+        console.log(results)
+    })
+    
+    
+})
 app.get('/getboards', async (req, res) => {
     let result = [];
-    if (req.query.UUID !== undefined) {
-        const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.query.UUID + "'", (err, results) => {
+    if (req.query.uuid !== undefined) {
+        const answer = await con.query("SELECT * FROM `user` WHERE UUID = '" + req.query.uuid + "'", (err, results) => {
             if (err) {
                 console.log(err)
             }
-            let sql = "SELECT pinboard.ID, pinboard.Name, pinboard.Createdon, pinboard.UUID FROM pinboard INNER JOIN pinboarduser ON pinboard.ID = pinboarduser.PinboardIDFS INNER JOIN user ON user.ID = pinboarduser.UserIDFS WHERE user.ID = '" + results[0].ID + "';"
+            let sql = "SELECT * FROM pinboard INNER JOIN pinboarduser ON pinboard.ID = pinboarduser.PinboardIDFS INNER JOIN user ON user.ID = pinboarduser.UserIDFS WHERE user.ID = '" + results[0].ID + "';"
             const boards = con.query(sql, (err, boardresult) => {
                 if (err) {
                     console.log(err)
                 }
+
                 for (let i = 0; i < boardresult.length; i++) {
+                    console.log(boardresult[i])
                     let object = {
+                        id: boardresult[i].PinboardIDFS,
                         Name: boardresult[i].Name,
                         Createddate: boardresult[i].Createdon,
-                        UUID: boardresult[i].UUID
+                        UUID: boardresult[i].uuid
                     }
                     result.push(object)
                 }
@@ -136,13 +206,13 @@ app.get('/getnotes', async (req, res) => {
     let result = [];
     console.log(req.query.UUID)
     if (req.query.UUID !== undefined) {
-        const answer = await con.query("SELECT note.title, note.description FROM `note` INNER JOIN pinboardnote ON note.ID = pinboardnote.NoteIDFS INNER JOIN pinboard ON pinboardnote.pinboardIDFS = pinboard.ID WHERE pinboard.UUID = '" + req.query.UUID + "'", (err, results) => {
+        const answer = await con.query("SELECT * FROM `note` INNER JOIN pinboardnote ON note.ID = pinboardnote.NoteIDFS INNER JOIN pinboard ON pinboardnote.pinboardIDFS = pinboard.ID WHERE pinboard.UUID = '" + req.query.UUID + "'", (err, results) => {
             if (err) {
                 console.log(err)
             }
-            console.log(results)
             for (let i = 0; i < results.length; i++) {
                 let object = {
+                    id: results[i].NoteIDFS,
                     title: results[i].title,
                     description: results[i].description
                 }
@@ -150,7 +220,6 @@ app.get('/getnotes', async (req, res) => {
             }
 
 
-            console.log(result)
             return res.send(result)
 
         })
@@ -162,25 +231,20 @@ app.get('/getnotes', async (req, res) => {
 app.post('/createnote', async (req, res) => {
     console.log(req.body)
     let noteid
-    let pinboardid
+
     let sql = "INSERT INTO Note (Title, Description) VALUES ('" + req.body.Title + "','" + req.body.Description + "');"
     const Note = con.query(sql, async function (err, result) {
         if (err) {
             throw err;
         }
         noteid = result.insertId;
-        const pinboardselect = await con.query("SELECT * FROM `pinboard` WHERE UUID = '" + req.body.BoardUUID + "'", (err, results) => {
-            if (err) {
-                return res.sendStatus(599)
-            }
-            pinboardid = results[0].ID
-            let pinnote = "INSERT INTO pinboardnote (PinboardIDFS, NoteIDFS) VALUES ('" + pinboardid + "','" + noteid + "')";
+
+            let pinnote = "INSERT INTO pinboardnote (PinboardIDFS, NoteIDFS) VALUES ('" + req.body.BoardID + "','" + noteid + "')";
             const pinboardnote = con.query(pinnote, async function (err, resu) {
                 if (err) {
                     throw err;
                 }
             })
-        })
         console.log("inserted Note")
         return res.send(true)
     })
