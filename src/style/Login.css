@@ -23,7 +23,7 @@
 .Login input::placeholder{
     color:white;
 }
-.Login input[type=submit] {
+.Login input[type=button] {
     text-align: center;
     width: 33%;
     background-color: #0033a0;

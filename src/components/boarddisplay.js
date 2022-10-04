@@ -1,5 +1,5 @@
 import '../style/App.css';
-import '../style/Style.css';
+import '../style/Board.css';
 import { useState, useEffect } from "react";
 import {checkCookie, checkCookies, getCookie} from "./cookie"
 import Redirect from './redirect';
@@ -16,6 +16,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
+import { ImportExportOutlined, LeakAdd } from '@mui/icons-material';
 
 
 const Cookies = require('js-cookie')
@@ -38,6 +39,11 @@ export default function Boarddisplay() {
   const handleCloseDelete = () => setShowDelete(false);
   const handleShowDelete = (note) => (setCurrentNote(note), setShowDelete(true));
 
+  const [showInspect, setShowInspect] = useState(false);
+
+  const handleCloseInspect = () => setShowInspect(false);
+  const handleShowInspect = (note) => (setCurrentNote(note), setShowInspect(true));
+
   const [loading, setLoading] = useState(true)
   const UUID = Cookies.get('user')
   const { uuid } = useParams()
@@ -49,6 +55,14 @@ export default function Boarddisplay() {
   const [description, setDescription] = useState()
   const [titleUpdate, setTitleUpdate] = useState()
   const [descriptionUpdate, setDescriptionUpdate] = useState()
+  const [noteType, setNoteType] = useState("text")
+  const [checkbox, setCheckbox] = useState([])
+  const [checkboxtext, setCheckBoxText] = useState("")
+
+  function addTextToCheckbox(){
+    setCheckbox([...checkbox, checkboxtext])
+    setCheckBoxText("")
+  }
 
 
   async function getNotes(){
@@ -65,21 +79,21 @@ export default function Boarddisplay() {
       {
         Title: title,
         Description: description,
-        BoardID: currentBoard.id
+        BoardID: currentBoard.id,
+        Checkbox: checkbox
 
       })
       .catch((error) => console.log(error));
       setLoading(true)
+      setCheckbox("")
       getNotes()
   }
 
   async function getBoards() {
     const result = await axios.get("http://localhost:9000/getboards?uuid=" + UUID)
       .then((response) => response.data)
-      console.log(result)
     for(let res of result){
       if (res.UUID == uuid){
-        console.log(res)
         setCurrentBoard(res)
       }
     }
@@ -98,6 +112,7 @@ export default function Boarddisplay() {
       }
       })
       .catch((error) => console.log(error));
+      window.location.reload();
       setLoading(true)
       getNotes()
   }
@@ -121,6 +136,19 @@ export default function Boarddisplay() {
       getNotes()
   }
 
+  async function checkCheckbox(checkbox){
+    const result = await axios.put("http://localhost:9000/updatecheckbox",
+    {
+      Id: checkbox.Id,
+      Checked: checkbox.Checked
+    })
+      .then((response) => response.data)   
+      
+    setLoading(true)
+    await getNotes()
+    setLoading(false)
+  }
+
   const style = {
     position: 'absolute',
     top: '50%',
@@ -139,6 +167,15 @@ export default function Boarddisplay() {
     getNotes()
     getBoards()
   }, []);
+
+  useEffect(() => {
+    console.log(noteType)
+  }, [noteType]);
+
+  useEffect(() => {
+    console.log(checkbox)
+  }, [checkbox]);
+
   if (loading){
     return (
       <h1>Loading</h1>
@@ -155,10 +192,27 @@ export default function Boarddisplay() {
         {notes.map((note, index) => (
           <>
           <Col fluid="md" style={{margin:"10px"}}>
-            <Card variant="outlined" sx={{ maxWidth: 254 }}>
+            <Card variant="outlined" sx={{ maxWidth: 254 }} >
               <CardContent>
+                <Typography gutterBottom variant="h5" component="div" >
+                  <div>{note.title}</div>
+                </Typography>
                 <Typography gutterBottom variant="h5" component="div">
-                  {note.title}
+                {note.description !== "undefined"
+                ?<>{note.description}</>
+                :<></>
+                }
+                </Typography>
+                <Typography gutterBottom variant="h5" component="div">
+                  {note.checklist !== []
+                  ?<p>{note.checklist.map((item,key) => (
+                    <>{item.Checked == 'false'
+                    ?<><input onClick={(e) => (checkCheckbox(item))}  type="checkbox" /><div>{item.Text}</div></>
+                    :<><input onClick={(e) => (checkCheckbox(item))} type="checkbox" checked/><div className='checked' >{item.Text}</div></>
+                    }</>
+                  ))}</p>
+                  :<></>
+                  }
                 </Typography>
               </CardContent>
               <CardActions>
@@ -184,11 +238,25 @@ export default function Boarddisplay() {
               Create New Note
             </Typography>
             <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            <form>
-                <input placeholder="Title" type="text" style={{ margin: "10px" }} onChange={(e) => { setTitle(e.target.value) }} ></input> 
-                <br></br>
-                <textarea placeholder="Description" style={{ margin: "10px" }} rows="3" cols="30" onChange={(e) => { setDescription(e.target.value) }}> </textarea> 
+            <input placeholder="Title" type="text" style={{ margin: "10px" }} onChange={(e) => { setTitle(e.target.value) }} ></input> 
+              <form style={{ margin: "10px" }}>
+                <label>text</label>
+                <input type="radio" checked={true} name="type" value="text" onClick={(e) => {setNoteType(e.target.value)}}/>
+                <label>checklist</label>
+                <input type="radio"  name="type" value="checklist" onClick={(e) => {setNoteType(e.target.value)}} />
               </form>
+              {noteType == "text"
+              ?<p><textarea placeholder="Description" style={{ margin: "10px" }} rows="3" cols="30" onChange={(e) => { setDescription(e.target.value) }}> </textarea> </p>
+              :<>
+                {checkbox?.map((text, index) => (
+                  <>
+                  <p>{text}</p>
+                  </>
+                ))}
+                <input  type="text" style={{ margin: "10px" }}  onClick={(e) => {setCheckBoxText(e.target.value)}} />    
+                <Button onClick={addTextToCheckbox}>Add</Button>          
+                </>}
+                
             </Typography>
             <Button variant="contained" style={{ margin: "10px" }} onClick={handleClose}>
               Close

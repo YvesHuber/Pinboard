@@ -23,7 +23,6 @@ function Login() {
         console.log(testdata)
         setuserid(testdata)
         Cookies.set('user', [testdata], { expires: 1 })
-        window.location.replace("http://localhost:3000");
         }
     }
 
@@ -47,7 +46,7 @@ function Login() {
                     </Row>
                     <Row>
                         <Col>
-                        <input type="submit" value="Login" onClick = {(e) => { makecall() } }/> 
+                        <input type="button" value="Login" onClick = {(e) => { makecall() } }/> 
                         </Col>
                     </Row>
                 </form> 
