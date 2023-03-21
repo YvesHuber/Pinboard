@@ -1,41 +1,29 @@
 import { v4 as uuidv4 } from 'uuid';
 import '../style/App.css';
 import '../style/Register.css';
-import sha512 from 'crypto-js/sha512';
 import { useState, useEffect } from "react";
+import { registerWithEmailAndPassword } from '../firebase';
 import {Button, Offcanvas, Container, Row, Col, Card, Form} from "react-bootstrap"
-
-const axios = require('axios')
-const CryptoJS = require("crypto-js");
-
+import {
+  collection,
+  addDoc,
+} from "firebase/firestore";
+import { db, auth } from "../firebase";
 
 
 
 function Register() {
-    const [firstname, setfirstname] = useState("");
-    const [lastname, setlastname] = useState("");
+    const [name, setName] = useState("");
     const [email, setemail] = useState("");
     const [address, setaddress] = useState("");
     const [PLZ, setPLZ] = useState("");
     const [password, setpassword] = useState("");
-    const [uuid,setuuid] = useState(uuidv4());
 
     function insert(){
-      setpassword(sha512(password).toString())
-        axios.post("http://localhost:9000/register", {
-          firstname: firstname,
-          lastname: lastname,
-          email: email,
-          address: address,
-          password: password,
-          OrtIDFS: 1,
-          uuid: uuid
-        });
-        axios.post("http://localhost:9000/sendmail", {
-          mail: email
-        });
-        
-      
+     registerWithEmailAndPassword(name,email,password)
+      .catch((error) => {
+        alert(error.message);
+      });
     }
 
   return (
@@ -49,12 +37,7 @@ function Register() {
         <form>
           <Row>
             <Col>
-            <input placeholder="Firstname" type="text" onChange={(e) => {setfirstname(e.target.value)}}/> 
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-            <input placeholder="Lastname" type="text" onChange={(e) => {setlastname(e.target.value)}}/>
+            <input placeholder="name" type="text" onChange={(e) => {setName(e.target.value)}}/> 
             </Col>
           </Row>
           <Row>
@@ -77,7 +60,7 @@ function Register() {
           </Row>
           <Row>
             <Col>
-            <input type="submit" onClick={(e)=> {insert()}}></input>
+            <Button onClick={(e)=> {insert()}}>Submit</Button>
             </Col>
           </Row>
         </form>

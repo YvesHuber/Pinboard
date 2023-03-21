@@ -1,38 +1,48 @@
 import { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from "react-router-dom";
 import Redirect from './redirect';
 import { v4 as uuidv4 } from 'uuid';
-import { Offcanvas, Container, Row, Col, ModalFooter } from "react-bootstrap"
 import Grid from '@mui/material/Grid'; // Grid version 1
 import Card from '@mui/material/Card';
+import {
+  collection,
+  addDoc,
+  query,
+  onSnapshot,
+  where,
+  deleteDoc,
+  getDocs,
+} from "firebase/firestore";
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Paper from '@mui/material/Paper';
-import { styled } from '@mui/material/styles';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import Dialog from '@mui/material/Dialog'; import { styled } from '@mui/material/styles';
+import { CardActionArea, Fab } from '@mui/material';
+import { db, auth } from "../firebase";
+import { TextField } from "@mui/material";
+import { useAuthState } from "react-firebase-hooks/auth";
+import AddIcon from '@mui/icons-material/Add';
+
 
 const axios = require('axios')
-const Cookies = require('js-cookie')
 
 
 export default function Board() {
+
+  const [user, loading, error] = useAuthState(auth);
+
+
   const [show, setShow] = useState(false);
-  const [Name, setName] = useState()
-  const [Boards, setBoards] = useState([])
+  const [name, setName] = useState()
+  const [boards, setBoards] = useState()
   const [isLoading, setLoading] = useState(true);
   const [uuid, setuuid] = useState(uuidv4());
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const UUID = Cookies.get('user')
   const [titleUpdate, setTitleUpdate] = useState()
 
   const [showUpdate, setShowUpdate] = useState(false);
@@ -59,41 +69,84 @@ export default function Board() {
     p: 4,
   };
 
-
-
   async function createBoard() {
-    const result = await axios.post("http://localhost:9000/createboards",
-      {
-        BoardUUID: uuid,
-        Name: Name,
-        UUID: UUID
-      })
-      .catch((error) => console.log(error));
-    setLoading(true)
-    getBoards()
 
+    let userobj = {uuid: user.uid, role:"Owner"}
+
+    console.log(userobj)
+    addDoc(collection(db, "boards"), {
+      BoardUUID: uuid,
+      Name: name,
+      Users: [userobj]
+    })
+      .catch((error) => {
+        alert(error.message);
+      });
   }
+
+  async function getNoteCount(boardUUID){
+    let count = 0
+
+    const noteRef = collection(db, "notes");
+    const q = query(noteRef, where("BoardID", "==", boardUUID));
+    const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        count++;
+        console.log(doc)
+      });
+    
+    return count
+  }
+
   async function getBoards() {
-    const result = await axios.get("http://localhost:9000/getboards?uuid=" + UUID)
-      .then((response) => response.data)
-    console.log(result)
-    setBoards(result)
-    console.log(Boards)
-    setLoading(false)
+    try {
+      let array = []
+      onSnapshot(collection(db, "boards"), (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          let object = doc.data();
+          object.id = doc.id;
+          for(let u of object.Users){
+            if (u.uuid === user?.uid){
+
+              let count = 0
+              getNoteCount(object.BoardUUID).then((value) => {
+              count = value
+              })
+
+                object.notecount = count
+                array.push(object)
+                console.log(object)
+
+            }
+          }
+        });
+      });
+      onSnapshot(collection(db, "notes"), (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          let object = doc.data();
+          object.id = doc.id;
+          for (let board of array){
+            if(object.BoardID == board.uid){
+
+            }
+          }
+
+        });
+      });
+      setBoards(array)
+      console.log(array)
+
+    } catch (err) {
+      console.error(err);
+    }
 
   }
 
   async function deleteBoard() {
     console.log(currentBoard)
+    deleteDoc(collection(db, "boards", currentBoard.id));
+
     handleCloseDelete()
-    const result = await axios.delete("http://localhost:9000/deleteboard",
-      {
-        data: {
-          id: currentBoard.id,
-        }
-      })
-      .catch((error) => console.log(error));
-    window.location.reload(false);
   }
   async function editBoard() {
     window.location.reload(false);
@@ -108,13 +161,27 @@ export default function Board() {
       .catch((error) => console.log(error));
   }
 
+  async function navigateto(board) {
+    window.location.href = `/board/${board.Name}/${board.BoardUUID}`
+  }
+
 
   useEffect(() => {
-    if (UUID !== undefined) {
+  }, []);
+
+  useEffect(() => {
+    if(user !== undefined){
       getBoards()
     }
+  }, [user]);
 
-  }, []);
+
+  useEffect(() => {
+    if (boards != undefined && boards != []){
+      console.log(boards)
+      setLoading(false)
+    }
+  }, [boards]);
 
   if (isLoading) {
     return (
@@ -127,102 +194,60 @@ export default function Board() {
 
   return (
     <>
-
       <div className="boards">
-        <Container>
-          <Row>
-            <Col style={{margin:"10%"}}>
-              <Redirect link="../login" />
-              <h1  >Hallo Boards</h1>
-              <h2>Create new Board</h2>
-            </Col>
-          </Row>
+        <Grid container spacing={-4} direction="column" justifyContent="center" alignItems="center">
+          <Grid container direction="row" justifyContent="center" alignItems="center">
+            {boards?.map((board, index) => (
+              <Grid key={index}>
+                <Card variant="outlined" style={{ margin: "10px" }} sx={{ minWidth: 275, maxWidth: 500 }}>
+                  <CardActionArea onClick={(e) => navigateto(board)}>
+                    <CardContent>
+                      <Typography gutterBottom variant="h5" component="div">
+                        <h3>{board.Name}</h3>
+                        <h3>{board.notecount}</h3>
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
 
-          <Row>
-            <Offcanvas show={show} onHide={handleClose}>
-              <Offcanvas.Header closeButton>
-                <Offcanvas.Title>Create New Board</Offcanvas.Title>
-              </Offcanvas.Header>
-              <Offcanvas.Body>
-                <form>
-                  <input style={{margin:"10px"}} placeholder="Boardname" type="text" onChange={(e) => { setName(e.target.value) }} ></input> <br></br>
-                  <input style={{margin:"10px"}} type="button" value="submit" onClick={(e) => { createBoard() }} ></input>
-                </form>
-              </Offcanvas.Body>
-            </Offcanvas>
-          </Row>
-          <Row>
-            {Boards.map((board, index) => (
-              <Col  fluid="md"  style={{margin:"10px"}}>
-              <Card variant="outlined" style={{margin:"10px"}} sx={{ maxWidth: 254 }}>
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
-                    <Link style={{color:"black", textDecoration:"none"}} to={`/board/${board.Name}/${board.UUID}`}>
-                      {board.Name}
-                    </Link>
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button variant="contained" color="error" onClick={(e) => (handleShowDelete(board))}>löschen</Button>
-                  <Button variant="contained" color="success" onClick={(e) => (handleShowUpdate(board))}>editieren</Button>
-                </CardActions>
-              </Card>
-              </Col>
+                </Card>
+              </Grid>
             ))}
-          </Row>
-          <Row>
-            <Col>
-              <Button variant="contained" style={{margin:"10px"}} onClick={handleShow}>
-                Create Board
-              </Button>
-            </Col>
-          </Row>
-          <Modal
-            open={showUpdate}
-            onClose={handleCloseUpdate}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography style={{margin:"10px"}} id="modal-modal-title" variant="h6" component="h2">
-                Changeing Borad name
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }} style={{margin:"10px"}}>
-                Are you sure that you want to change to board name?
-                <form>
-                  <input placeholder={currentBoard?.title} type="text" style={{marginTop:"10px"}} onChange={(e) => { setTitleUpdate(e.target.value) }} /> <br></br>
-                </form>
-              </Typography>
-              <Button variant="contained" style={{margin:"10px"}} onClick={handleCloseUpdate}>
-                Close
-              </Button>
-              <Button variant="contained" style={{margin:"10px"}} onClick={editBoard}>
-                Save Changes
-              </Button>
-            </Box>
-          </Modal>
-          <Modal
-            open={showDelete}
-            onClose={handleCloseDelete}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title"  style={{margin:"10px"}} variant="h6" component="h2">
-                Are you sure?
-              </Typography>
-              <Typography id="modal-modal-description" style={{margin:"10px"}} sx={{ mt: 2 }}>
-                Are you sure you want to delete note {createBoard?.title} ?
-              </Typography>
-              <Button variant="contained" style={{margin:"10px"}} onClick={handleCloseDelete}>
-                Cancel
-              </Button>
-              <Button variant="contained" style={{margin:"10px"}} onClick={(e) => (deleteBoard(createBoard))}>
-                Delete Note
-              </Button>
-            </Box>
-          </Modal>
-        </Container>
+          </Grid>
+          <Grid xs={12}>
+            <h2>Create new Board</h2>
+          </Grid>
+          <Grid xs={12}>
+
+
+          </Grid>
+        </Grid>
+
+
+        <Dialog onClose={handleCloseUpdate} open={showUpdate}>
+          <DialogContent>
+            <DialogTitle>Update Board {currentBoard?.title}</DialogTitle>
+            <TextField placeholder={currentBoard?.title} type="text" style={{ marginTop: "10px" }} onChange={(e) => { setTitleUpdate(e.target.value) }} /> <br></br>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" color="error" onClick={(e) => (deleteBoard(createBoard))}> Delete </Button>
+            <Button variant="contained" onClick={handleCloseUpdate}>Cancel</Button>
+            <Button variant="contained" color="success" onClick={(e) => { editBoard() }}>Update</Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog onClose={handleClose} open={show}>
+          <DialogContent>
+            <DialogTitle>Create New Board</DialogTitle>
+            <TextField style={{ margin: "10px" }} placeholder="Boardname" type="text" onChange={(e) => { setName(e.target.value) }} ></TextField> <br></br>
+
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={(e) => { createBoard() }}>Create new Board</Button>
+          </DialogActions>
+        </Dialog>
+        <Fab color="primary" aria-label="add" onClick={handleShow}>
+          <AddIcon />
+        </Fab>
       </div>
     </>
   )

@@ -8,6 +8,7 @@ import Crypto from './components/crypto'
 import Board from './components/board'
 import User from './components/user'
 import Boarddisplay from './components/boarddisplay'
+import Invite from './components/invite';
 
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -25,6 +26,8 @@ function App() {
         <Route exact path="/login" element={<Login/>}/>
         <Route exact path="/board/:name/:uuid" element={<Boarddisplay/>}/>
         <Route exact path="/user" element={<User/>}/>
+        <Route exact path="/invite/:id" element={<Invite/>}/>
+
       </Routes>
     </BrowserRouter>
   </div>

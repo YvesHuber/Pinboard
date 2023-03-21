@@ -9,21 +9,7 @@ export default function Redirect(props) {
 
 
   async function setup(){
-    let UUID = await Cookies.get('user')
-    console.log(UUID)
-    let response = await axios.post("http://localhost:9000/cookies", {
-            UUID: UUID
-        })
-        .then((data) =>  data.data) 
-        .catch((err) => console.error(err));
-    console.log(response)
-    if (response === true){
       validation(true)
-    }
-    else {
-      validation(false)
-    }
-  
   }
 
   useEffect(() => {
